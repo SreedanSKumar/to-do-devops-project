@@ -1,0 +1,15 @@
+# Staging runs light - 1 replica each, no need to over-provision an
+# environment nobody's users hit directly.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1

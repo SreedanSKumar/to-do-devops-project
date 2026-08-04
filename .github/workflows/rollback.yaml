@@ -1,0 +1,43 @@
+name: GitOps Rollback
+
+# Rolls a chosen environment's kustomize overlay back to how it looked at a
+# past commit. ArgoCD (automated + selfHeal) then converges the cluster to
+# match within its next sync interval - no direct kubectl/argocd CLI access
+# needed from this workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to roll back'
+        required: true
+        type: choice
+        options: [staging, prod]
+      target_commit:
+        description: 'Commit SHA to roll back to'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate target commit touches this overlay
+        run: |
+          git log --oneline -- "k8s/overlays/${{ github.event.inputs.environment }}" | grep -q "${{ github.event.inputs.target_commit }}" \
+            && echo "commit found in overlay history" \
+            || (echo "::warning::${{ github.event.inputs.target_commit }} not found in k8s/overlays/${{ github.event.inputs.environment }} history - proceeding anyway" )
+
+      - name: Revert overlay to target commit
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout ${{ github.event.inputs.target_commit }} -- "k8s/overlays/${{ github.event.inputs.environment }}"
+          git add "k8s/overlays/${{ github.event.inputs.environment }}"
+          git commit -m "rollback(${{ github.event.inputs.environment }}): to ${{ github.event.inputs.target_commit }}" || echo "nothing to commit - already at that state"
+          git push

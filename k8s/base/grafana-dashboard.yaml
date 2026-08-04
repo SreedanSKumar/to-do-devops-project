@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsboard-grafana-dashboard
+  labels:
+    # picked up automatically by the Grafana sidecar (see
+    # grafana.sidecar.dashboards in the kube-prometheus-stack ArgoCD app)
+    grafana_dashboard: "1"
+data:
+  opsboard.json: |
+    {
+      "title": "OpsBoard - Backend",
+      "uid": "opsboard-backend",
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "panels": [
+        {
+          "id": 1,
+          "title": "Request rate",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            { "expr": "sum(rate(opsboard_backend_http_requests_total[5m])) by (status_code)", "legendFormat": "{{status_code}}" }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "p95 latency",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            { "expr": "histogram_quantile(0.95, sum(rate(opsboard_backend_http_request_duration_seconds_bucket[5m])) by (le))", "legendFormat": "p95" }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "5xx error ratio",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            { "expr": "sum(rate(opsboard_backend_http_requests_total{status_code=~\"5..\"}[5m])) / sum(rate(opsboard_backend_http_requests_total[5m]))", "legendFormat": "error ratio" }
+          ]
+        },
+        {
+          "id": 4,
+          "title": "Pod restarts",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "targets": [
+            { "expr": "sum(increase(kube_pod_container_status_restarts_total{container=~\"backend|frontend\"}[15m])) by (pod)", "legendFormat": "{{pod}}" }
+          ]
+        }
+      ]
+    }

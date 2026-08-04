@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ops Board</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <main class="board">
+    <header class="board__header">
+      <div class="board__title">
+        <span class="board__prompt">&gt;</span> ops-board
+      </div>
+      <div class="status" id="status" title="Backend connectivity">
+        <span class="status__dot" id="statusDot"></span>
+        <span class="status__label" id="statusLabel">checking backend&hellip;</span>
+      </div>
+    </header>
+
+    <p class="board__subtitle">A running task log for the pipeline you just shipped. Add work, close it out, watch it move.</p>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <span class="composer__prefix">$ add</span>
+      <input class="composer__input" id="taskInput" type="text" placeholder="ship the alerting rules&hellip;" maxlength="140" />
+      <button class="composer__submit" type="submit">enter</button>
+    </form>
+
+    <section class="board__stats" id="stats" aria-live="polite"></section>
+
+    <ul class="tasks" id="taskList"></ul>
+
+    <p class="empty" id="emptyState" hidden>no tasks yet — the queue is clean.</p>
+  </main>
+
+  <script src="/env.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

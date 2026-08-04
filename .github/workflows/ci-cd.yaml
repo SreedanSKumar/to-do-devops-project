@@ -1,0 +1,134 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_BACKEND_REPO: opsboard-backend
+  ECR_FRONTEND_REPO: opsboard-frontend
+
+jobs:
+  test:
+    name: Build + Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: app/backend/package.json
+
+      - name: Install backend deps
+        working-directory: app/backend
+        run: npm install
+
+      - name: Run backend unit tests
+        working-directory: app/backend
+        run: npm test
+
+      - name: Install frontend deps
+        working-directory: app/frontend
+        run: npm install
+
+      - name: Syntax-check frontend server
+        working-directory: app/frontend
+        run: node --check server.js
+
+  build-and-push:
+    name: Build, Scan, Push to ECR
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+      ecr_registry: ${{ steps.login-ecr.outputs.registry }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set image tag
+        id: vars
+        run: echo "image_tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build backend image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.vars.outputs.image_tag }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG ./app/backend
+
+      - name: Build frontend image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.vars.outputs.image_tag }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_FRONTEND_REPO:$IMAGE_TAG ./app/frontend
+
+      - name: Scan images with Trivy
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: "${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_BACKEND_REPO }}:${{ steps.vars.outputs.image_tag }}"
+          severity: "CRITICAL,HIGH"
+          exit-code: "0" # don't fail the build on findings for this capstone; flip to "1" to enforce
+
+      - name: Push backend image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.vars.outputs.image_tag }}
+        run: docker push $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG
+
+      - name: Push frontend image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ steps.vars.outputs.image_tag }}
+        run: docker push $ECR_REGISTRY/$ECR_FRONTEND_REPO:$IMAGE_TAG
+
+  deploy-staging:
+    name: Deploy to Staging (GitOps)
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Point staging overlay at the new images
+        working-directory: k8s/overlays/staging
+        env:
+          ECR_REGISTRY: ${{ needs.build-and-push.outputs.ecr_registry }}
+          IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+        run: |
+          kustomize edit set image \
+            "REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=${ECR_REGISTRY}/opsboard-backend:${IMAGE_TAG}" \
+            "REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=${ECR_REGISTRY}/opsboard-frontend:${IMAGE_TAG}"
+
+      - name: Commit the new staging image tags
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add k8s/overlays/staging/kustomization.yaml
+          git commit -m "deploy(staging): ${{ needs.build-and-push.outputs.image_tag }}" || echo "nothing to commit"
+          git push
+      # ArgoCD (automated + selfHeal) picks this commit up on its own poll
+      # interval, no separate "kubectl apply" step needed. Promote to prod
+      # via the separate "Promote to Production" workflow once staging looks good.

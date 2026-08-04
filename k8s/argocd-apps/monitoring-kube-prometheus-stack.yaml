@@ -1,0 +1,52 @@
+# Prometheus + Alertmanager + Grafana, deployed the same GitOps way as the
+# app itself - ArgoCD watching a Helm chart instead of raw manifests.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "61.3.2"
+    helm:
+      valuesObject:
+        grafana:
+          enabled: true
+          adminPassword: change-me-in-a-real-deploy
+          defaultDashboardsEnabled: true
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+        prometheus:
+          prometheusSpec:
+            # Scrape ServiceMonitors/PrometheusRules from every namespace,
+            # not just ones carrying the chart's own release label - so the
+            # app-level ServiceMonitor in k8s/monitoring/ is picked up
+            # without extra label wrangling.
+            serviceMonitorSelectorNilUsesHelmValues: false
+            serviceMonitorSelector: {}
+            serviceMonitorNamespaceSelector: {}
+            ruleSelectorNilUsesHelmValues: false
+            ruleSelector: {}
+            ruleNamespaceSelector: {}
+            retention: 7d
+            resources:
+              requests: { cpu: 200m, memory: 512Mi }
+              limits: { cpu: 500m, memory: 1Gi }
+        alertmanager:
+          enabled: true
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

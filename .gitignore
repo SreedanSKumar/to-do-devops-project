@@ -1,0 +1,19 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+.terraform.lock.hcl
+infra/terraform/lambda/lambda_func.zip
+
+# Local env
+.env
+
+# OS
+.DS_Store

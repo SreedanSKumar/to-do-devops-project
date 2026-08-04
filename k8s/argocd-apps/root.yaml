@@ -1,0 +1,26 @@
+# App-of-apps: apply this ONE manifest by hand after ArgoCD is up, and it
+# takes over managing every other Application in this directory (including
+# itself). Sync waves ensure the monitoring CRDs land before the
+# ServiceMonitor/PrometheusRule objects that depend on them.
+#
+#   kubectl apply -n argocd -f k8s/argocd-apps/root.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opsboard-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/yourorg/yourrepo.git'
+    path: k8s/argocd-apps
+    targetRevision: main
+    directory:
+      exclude: 'root.yaml'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
