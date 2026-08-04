@@ -12,9 +12,9 @@ patches:
   - path: patch-replicas.yaml
 
 images:
-  - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
+  - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
     newTag: latest
-  - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
+  - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
     newTag: latest
 
 commonLabels:

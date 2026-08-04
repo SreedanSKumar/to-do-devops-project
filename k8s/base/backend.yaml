@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend:latest
+          image: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend:latest
           ports:
             - containerPort: 5000
           env:

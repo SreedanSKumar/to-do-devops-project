@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:latest
+          image: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:latest
           ports:
             - containerPort: 3000
           env:
