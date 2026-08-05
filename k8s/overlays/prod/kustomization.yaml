@@ -8,9 +8,9 @@ patches:
 images:
 - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
-  newTag: ac0c5aa7549b
+  newTag: 9f4e9300d4e4
 - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
-  newTag: ac0c5aa7549b
+  newTag: 9f4e9300d4e4
 commonLabels:
   environment: prod
