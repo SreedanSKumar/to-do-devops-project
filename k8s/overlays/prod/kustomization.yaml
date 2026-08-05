@@ -1,14 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 namespace: prod
-
 resources:
 - ../../base
-
 patches:
 - path: patch-replicas.yaml
-
 images:
 - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
@@ -16,6 +12,5 @@ images:
 - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newTag: ac0c5aa7549b
-
 commonLabels:
   environment: prod
