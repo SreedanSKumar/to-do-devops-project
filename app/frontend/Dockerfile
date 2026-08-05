@@ -6,8 +6,8 @@ RUN npm install --omit=dev
 
 COPY . .
 
-RUN adduser -D -u 1000 appuser
-USER 1000
+RUN adduser -D -u 1001 appuser
+USER 1001
 
 ENV PORT=3000
 EXPOSE 3000
