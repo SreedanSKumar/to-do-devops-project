@@ -15,7 +15,7 @@ spec:
     targetRevision: "61.3.2"
     helm:
       valuesObject:
-        grafana:
+	grafana:
           enabled: true
           adminPassword: change-me-in-a-real-deploy
           defaultDashboardsEnabled: true
@@ -23,6 +23,11 @@ spec:
             dashboards:
               enabled: true
               label: grafana_dashboard
+          additionalDataSources:
+            - name: Loki
+              type: loki
+              url: http://loki-stack.monitoring.svc.cluster.local:3100
+              access: proxy
         prometheus:
           prometheusSpec:
             # Scrape ServiceMonitors/PrometheusRules from every namespace,
