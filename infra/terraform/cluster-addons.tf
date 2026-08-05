@@ -114,8 +114,7 @@ resource "kubernetes_secret" "db_secret" {
   }
 
   data = {
-    url = "postgresql://${var.db_username}:${random_password.db.result}@${module.db.db_instance_address}:5432/${var.db_name}"
-  }
+      url = "postgresql://${var.db_username}:${random_password.db.result}@${module.db.db_instance_address}:5432/${var.db_name}?sslmode=require"  }
 
   depends_on = [kubernetes_namespace.staging, kubernetes_namespace.prod]
 }
