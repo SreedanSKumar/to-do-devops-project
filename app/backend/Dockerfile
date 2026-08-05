@@ -7,8 +7,8 @@ RUN npm install --omit=dev
 COPY . .
 
 # Run as non-root user for better security posture in EKS
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
+RUN adduser -D -u 1000 appuser
+USER 1000
 
 ENV PORT=5000
 EXPOSE 5000
