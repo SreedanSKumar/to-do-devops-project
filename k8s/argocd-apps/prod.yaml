@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/yourorg/yourrepo.git'
+    repoURL: 'https://github.com/SreedanSKumar/to-do-devops-project'
     path: k8s/overlays/prod
     targetRevision: main
   destination:
