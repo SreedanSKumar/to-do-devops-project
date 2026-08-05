@@ -6,10 +6,10 @@ resources:
 patches:
 - path: patch-replicas.yaml
 images:
-- name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
+- name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
   newTag: 9f4e9300d4e4
-- name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
+- name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newTag: 9f4e9300d4e4
 commonLabels:
