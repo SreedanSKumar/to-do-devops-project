@@ -13,10 +13,10 @@ patches:
 images:
 - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
-  newTag: 9f4e9300d4e4
+  newTag: ad87fc2acf8c
 - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
-  newTag: 9f4e9300d4e4
+  newTag: ad87fc2acf8c
 
 commonLabels:
   environment: staging
