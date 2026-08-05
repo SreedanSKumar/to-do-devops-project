@@ -4,16 +4,18 @@ kind: Kustomization
 namespace: prod
 
 resources:
-  - ../../base
+- ../../base
 
 patches:
-  - path: patch-replicas.yaml
+- path: patch-replicas.yaml
 
 images:
-  - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
-    newTag: latest
-  - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
-    newTag: latest
+- name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
+  newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
+  newTag: ac0c5aa7549b
+- name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
+  newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
+  newTag: ac0c5aa7549b
 
 commonLabels:
   environment: prod
