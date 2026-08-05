@@ -103,3 +103,19 @@ resource "kubernetes_namespace" "prod" {
 resource "kubernetes_namespace" "monitoring" {
   metadata { name = "monitoring" }
 }
+# The app's DB credentials, created directly as k8s Secrets so nobody has to
+# hand-copy the RDS password. One per environment namespace.
+resource "kubernetes_secret" "db_secret" {
+  for_each = toset(["staging", "prod"])
+
+  metadata {
+    name      = "db-secret"
+    namespace = each.key
+  }
+
+  data = {
+    url = "postgresql://${var.db_username}:${random_password.db.result}@${module.db.db_instance_address}:5432/${var.db_name}"
+  }
+
+  depends_on = [kubernetes_namespace.staging, kubernetes_namespace.prod]
+}
