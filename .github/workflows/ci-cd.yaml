@@ -82,7 +82,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_FRONTEND_REPO:$IMAGE_TAG ./app/frontend
 
       - name: Scan images with Trivy
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: "${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_BACKEND_REPO }}:${{ steps.vars.outputs.image_tag }}"
           severity: "CRITICAL,HIGH"
@@ -119,8 +119,8 @@ jobs:
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
         run: |
           kustomize edit set image \
-            "REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=${ECR_REGISTRY}/opsboard-backend:${IMAGE_TAG}" \
-            "REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=${ECR_REGISTRY}/opsboard-frontend:${IMAGE_TAG}"
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=${ECR_REGISTRY}/opsboard-backend:${IMAGE_TAG}" \
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=${ECR_REGISTRY}/opsboard-frontend:${IMAGE_TAG}"
 
       - name: Commit the new staging image tags
         run: |
