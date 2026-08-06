@@ -32,7 +32,7 @@ jobs:
         run: |
           kustomize edit set image \
             "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend:${{ github.sha }}" \
-            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:${{ github.sha }}""
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:${{ github.sha }}"
 
       - name: Commit prod promotion
         run: |
