@@ -12,10 +12,10 @@ patches:
 images:
 - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
-  newTag: 8db39198c1da337c0f20621107a44ddea8349195
+  newTag: 222331147ec7bf299420419b46a22abe2c1a0983
 - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
-  newTag: 8db39198c1da337c0f20621107a44ddea8349195
+  newTag: 222331147ec7bf299420419b46a22abe2c1a0983
     
 commonLabels:
   environment: prod
