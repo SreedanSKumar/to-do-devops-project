@@ -1,7 +1,5 @@
 name: Promote Staging to Production
 
-# Deliberately manual - this is the approval gate between "it's on staging"
-# and "it's on prod". Run it from the Actions tab once you've checked staging.
 on:
   workflow_dispatch: {}
 
@@ -22,22 +20,32 @@ jobs:
       - name: Read current staging image tags
         id: current
         run: |
-          BACKEND_IMAGE=$(yq eval '.images[] | select(.name | test("opsboard-backend")) | (.newName + ":" + .newTag)' k8s/overlays/staging/kustomization.yaml)
-          FRONTEND_IMAGE=$(yq eval '.images[] | select(.name | test("opsboard-frontend")) | (.newName + ":" + .newTag)' k8s/overlays/staging/kustomization.yaml)
-          echo "backend_image=$BACKEND_IMAGE" >> "$GITHUB_OUTPUT"
-          echo "frontend_image=$FRONTEND_IMAGE" >> "$GITHUB_OUTPUT"
+          # Extract ONLY the newTag from the staging kustomization file
+          BACKEND_TAG=$(yq eval '.images[] | select(.name == "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend") | .newTag' k8s/overlays/staging/kustomization.yaml)
+          FRONTEND_TAG=$(yq eval '.images[] | select(.name == "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend") | .newTag' k8s/overlays/staging/kustomization.yaml)
+          
+          # Fail the pipeline immediately if it can't find the tags, preventing cluster crashes
+          if [ -z "$BACKEND_TAG" ] || [ -z "$FRONTEND_TAG" ]; then
+            echo "Error: Could not extract image tags from staging overlay."
+            exit 1
+          fi
 
-      - name: Point prod overlay at the same images
+          echo "backend_tag=$BACKEND_TAG" >> "$GITHUB_OUTPUT"
+          echo "frontend_tag=$FRONTEND_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Point prod overlay at the staging tags
         working-directory: k8s/overlays/prod
         run: |
+          # Inject the actual variables extracted from Staging, NOT the github.sha
           kustomize edit set image \
-            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend:${{ github.sha }}" \
-            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:${{ github.sha }}"
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend:${{ steps.current.outputs.backend_tag }}" \
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:${{ steps.current.outputs.frontend_tag }}"
 
       - name: Commit prod promotion
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add k8s/overlays/prod/kustomization.yaml
-          git commit -m "promote(prod): ${{ steps.current.outputs.backend_image }}" || echo "nothing to commit"
+          # Added [skip ci] so this commit doesn't accidentally trigger your main build pipeline again
+          git commit -m "promote(prod): sync to staging tags ${{ steps.current.outputs.backend_tag }} [skip ci]" || echo "nothing to commit"
           git push
