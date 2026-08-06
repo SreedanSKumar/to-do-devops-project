@@ -119,8 +119,8 @@ jobs:
           IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
         run: |
           kustomize edit set image \
-            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend:${{ github.sha }}" \
-            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:${{ github.sha }}"
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend:$IMAGE_TAG" \
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:$IMAGE_TAG"
 
       - name: Commit the new staging image tags
         run: |
