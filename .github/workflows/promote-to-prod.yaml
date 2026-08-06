@@ -31,8 +31,8 @@ jobs:
         working-directory: k8s/overlays/prod
         run: |
           kustomize edit set image \
-            "REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=${{ steps.current.outputs.backend_image }}" \
-            "REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=${{ steps.current.outputs.frontend_image }}"
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend:${{ github.sha }}" \
+            "866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend=866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend:${{ github.sha }}""
 
       - name: Commit prod promotion
         run: |
