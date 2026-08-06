@@ -1,11 +1,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+
 namespace: prod
+
 resources:
-- ../../base
+  - ../../base
+
 patches:
-- path: patch-replicas.yaml
+  - path: patch-replicas.yaml
+
 images:
+<<<<<<< HEAD
 - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
   newTag: 9f4e9300d4e4
@@ -18,5 +23,12 @@ images:
 - name: REPLACE_WITH_YOUR_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newName: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
   newTag: 78f956182fad
+=======
+  - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-backend
+    newTag: 78f956182fad
+  - name: 866567874348.dkr.ecr.ap-south-1.amazonaws.com/opsboard-frontend
+    newTag: 78f956182fad
+
+>>>>>>> cd1353e (fix: hardcode correct ECR image tag for production)
 commonLabels:
   environment: prod
